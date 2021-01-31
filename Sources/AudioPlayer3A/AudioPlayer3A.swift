@@ -1,34 +1,34 @@
 import AVFoundation
 
 public class AudioPlayer3A {
-    static let shared = AudioPlayer3A()
+    public static let shared = AudioPlayer3A()
     
     // MARK: - Dependencies
     weak var delegate: AudioPlayerDelegate?
     weak var dataSource: AudioPlayerDataSource?
     
-    let audioSession = AVAudioSession.sharedInstance()
-    let playerObserver = AudioPlayer3AStateObserver()
-    let commandCenterController = AudioCommandCenterController()
+    private let audioSession = AVAudioSession.sharedInstance()
+    private let playerObserver = AudioPlayer3AStateObserver()
+    private let commandCenterController = AudioCommandCenterController()
     
     // MARK: - Properties
     private var looper: AVPlayerLooper?
     private let player: AVQueuePlayer = AVQueuePlayer()
     private(set) var playerQueue: [AVPlayerItem] = []
-    var audioCategoryOptions: AVAudioSession.CategoryOptions = [
+    public var audioCategoryOptions: AVAudioSession.CategoryOptions = [
         .mixWithOthers, .allowAirPlay, .defaultToSpeaker
     ]
 
     // MARK: - State
-    private(set) var playbackState: AdvancePlaybackState = .pending {
+    public private(set) var playbackState: AdvancePlaybackState = .pending {
         didSet {
             handlePlaybackStateChange()
         }
     }
-    var isPaused: Bool {
+    public var isPaused: Bool {
         return player.rate == 0
     }
-    private(set) var isRepeatEnabled: Bool = false {
+    public private(set) var isRepeatEnabled: Bool = false {
         didSet {
             if isRepeatEnabled {
                 looper = AVPlayerLooper(player: player, templateItem: currentPlayerItem!)
@@ -37,26 +37,26 @@ public class AudioPlayer3A {
             }
         }
     }
-    var currentPlayerItem: AVPlayerItem? {
+    public var currentPlayerItem: AVPlayerItem? {
         return player.currentItem
     }
-    var currentPlayerItemID: String? {
+    public var currentPlayerItemID: String? {
         if let currentPlayerItem = currentPlayerItem {
             return dataSource?.audioPlayer(self, idForCurrentPlayerItem: currentPlayerItem)
         } else {
             return nil
         }
     }
-    var indexOfCurrentPlayerItem: Int? {
+    public var indexOfCurrentPlayerItem: Int? {
         guard let currentItem = currentPlayerItem else { return nil }
         return playerQueue.firstIndex(of: currentItem)
     }
-    var isPlayerAtLastItem: Bool {
+    public var isPlayerAtLastItem: Bool {
         return playerQueue.count-1 == indexOfCurrentPlayerItem
     }
     
     // MARK: - Setup
-    func loadPlayerItems(from avAssets: [(String, AVAsset)], playAtIndex: Int) {
+    public func loadPlayerItems(from avAssets: [(String, AVAsset)], playAtIndex: Int) {
         do {
             try audioSession.setCategory(
                 AVAudioSession.Category.playback,
@@ -79,7 +79,7 @@ public class AudioPlayer3A {
     
     // MARK: - Controls
     /// Handles playing and pausing for the current player Item.
-    func play() {
+    public func play() {
         commandCenterController.setupRemoteCommandCenter()
         configureCommandCenter()
         playbackState = isPaused ? .playing : .paused
@@ -88,7 +88,7 @@ public class AudioPlayer3A {
         }
     }
 
-    func stop() {
+    public func stop() {
         player.pause()
         player.removeAllItems()
         playerQueue.removeAll()
@@ -97,37 +97,37 @@ public class AudioPlayer3A {
         commandCenterController.clearRemoteNowPlayingInfoCenter()
     }
     
-    func goBackFifteenSeconds() {
+    public func goBackFifteenSeconds() {
         let currentTime = player.currentTime().seconds
         guard currentTime != 0 else { return }
         let timeScale = CMTimeScale(NSEC_PER_SEC)
         player.seek(to: CMTime(seconds: currentTime - 15, preferredTimescale: timeScale))
     }
     
-    func goForwardFifteenSeconds() {
+    public func goForwardFifteenSeconds() {
         let currentTime = player.currentTime().seconds
         let timeScale = CMTimeScale(NSEC_PER_SEC)
         player.seek(to: CMTime(seconds: currentTime + 15, preferredTimescale: timeScale))
     }
     
-    func seek(to value: Float) {
+    public func seek(to value: Float) {
         let newTime = Double(value)
         let timeScale = CMTimeScale(NSEC_PER_SEC)
         player.seek(to: CMTime(seconds: newTime, preferredTimescale: timeScale))
     }
     
-    @discardableResult func toggleLooping() -> Bool {
+    @discardableResult public  func toggleLooping() -> Bool {
         isRepeatEnabled = !isRepeatEnabled
         return isRepeatEnabled
     }
     
-    func skipForward() {
+    public func skipForward() {
         if !isPlayerAtLastItem {
             player.advanceToNextItem()
         }
     }
     
-    func skipBack() {
+    public func skipBack() {
         if let indexOfCurrentPlayerItem = indexOfCurrentPlayerItem, indexOfCurrentPlayerItem > 0 {
             configurePlayer(playerQueue, indexOfCurrentPlayerItem - 1)
         }
