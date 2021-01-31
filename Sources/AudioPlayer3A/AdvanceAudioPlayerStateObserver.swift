@@ -1,7 +1,7 @@
 import AVFoundation
 import Foundation
 
-final class AdvanceAudioPlayerStateObserver: NSObject {
+final class AudioPlayer3AStateObserver: NSObject {
     // MARK: Properties
     private var timeObserverToken: Any?
     

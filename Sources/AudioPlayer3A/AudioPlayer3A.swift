@@ -1,14 +1,14 @@
 import AVFoundation
 
-public class AdvanceAudioPlayer {
-    static let shared = AdvanceAudioPlayer()
+public class AudioPlayer3A {
+    static let shared = AudioPlayer3A()
     
     // MARK: - Dependencies
     weak var delegate: AudioPlayerDelegate?
     weak var dataSource: AudioPlayerDataSource?
     
     let audioSession = AVAudioSession.sharedInstance()
-    let playerObserver = AdvanceAudioPlayerStateObserver()
+    let playerObserver = AudioPlayer3AStateObserver()
     let commandCenterController = AudioCommandCenterController()
     
     // MARK: - Properties
@@ -82,22 +82,12 @@ public class AdvanceAudioPlayer {
     func play() {
         commandCenterController.setupRemoteCommandCenter()
         configureCommandCenter()
-        if isPaused {
-            player.play()
-            playbackState = .playing
-        } else {
-            player.pause()
-            playbackState = .paused
-        }
+        playbackState = isPaused ? .playing : .paused
         if let playerItem = currentPlayerItem, let index = indexOfCurrentPlayerItem {
             delegate?.audioPlayer(self, didChangePlayerItem: playerItem, at: index)
         }
     }
-    
-    func pauseIfNeeded() {
-        if !isPaused { play() }
-    }
-    
+
     func stop() {
         player.pause()
         player.removeAllItems()
@@ -146,7 +136,7 @@ public class AdvanceAudioPlayer {
 }
 
 // MARK: - Private Helpers
-extension AdvanceAudioPlayer {
+extension AudioPlayer3A {
     private func handlePlaybackStateChange() {
         switch playbackState {
         case .playing:
