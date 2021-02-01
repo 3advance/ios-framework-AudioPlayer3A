@@ -25,24 +25,27 @@ import AudioPlayer3A
 
 #### Manually
 
-If you prefer not to use any of the aforementioned dependency managers, you can integrate AudioPlayer3A into your project manually. Simply drag the `Sources` Folder into your Xcode project.
+You can also integrate AudioPlayer3A into your project manually by simply dragging the `Sources` Folder into your Xcode project.
 
 ## Usage
 
-- load player urls
+### Loading
+
 ```swift
-public func loadPlayerItems(from assetURLs: [URL], playAtIndex: Int = 0) throws
+let audioPlayer = AudioPlayer3A.shared
+let myAudioURLs = [URL(string: "myaudio.com/id/1"), URL(string: "myaudio.com/id/2")]
+try audioPlayer.loadPlayerItems(from: myAudioURLs.compactMap{$0})
+audioPlayer.play()
 ```
 
-- play to play
-```swift
-public func play()
-```
-You can receive player updates through the AudioPlayerDelegate protocol methods.
+### Getting Player Updates
+
 ```swift
 let audioController = AudioController()
-AudioPlayer3A.shared.delegate = audioController
+let audioPlayer = AudioPlayer3A.shared
+audioPlayer.delegate = audioController
 
+...
 extension AudioController: AudioPlayerDelegate {
     func audioPlayer(_ audioPlayer: AudioPlayer3A, didChangePlayerItem playerItem: AVPlayerItem, at index: Int) { ... }
     func audioPlayer(_ audioPlayer: AudioPlayer3A, didUpdateDuration currentTime: Int, totalDuration: Int) { ... }
@@ -52,8 +55,13 @@ extension AudioController: AudioPlayerDelegate {
 }
 ```
 
-- datasource methods retrieve for display within control center
+### Configuring the Control Center
 ```swift
+let audioController = AudioController()
+let audioPlayer = AudioPlayer3A.shared
+audioPlayer.dataSource = audioController
+
+...
 extension AudioController: AudioPlayerDataSource {
     func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayRemoteImageAtIndex index: Int) -> UIImage? { ... }
     func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayTitleAtIndex index: Int) -> String? { ... }
