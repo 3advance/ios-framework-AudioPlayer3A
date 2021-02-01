@@ -76,7 +76,7 @@ public class AudioPlayer3A {
     
     // MARK: - Controls
     /// Toggles the current player item playback state. If you did not initially call loadPlayerItems, this method will set the playback state to invalid.
-    public func play() {
+    public func togglePlay() {
         if playerQueue.isEmpty { playbackState = .invalid; return }
         controlCenterController.setup()
         configureCommandCenter()
