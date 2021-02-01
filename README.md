@@ -23,38 +23,50 @@ https://github.com/3advance/ios-framework-AudioPlayer3A
 import AudioPlayer3A
 ```
 
-### Manually
+#### Manually
 
-If you prefer not to use any of the aforementioned dependency managers, you can integrate AudioPlayer3A into your project manually. Simply drag the `Sources` Folder into your Xcode project.
+You can also integrate AudioPlayer3A into your project manually by simply dragging the `Sources` Folder into your Xcode project.
 
 ## Usage
 
-- load player urls
+### Setup/Playing
+
 ```swift
-public func loadPlayerItems(from assetURLs: [URL], playAtIndex: Int = 0) throws
+let audioPlayer = AudioPlayer3A.shared
+// 1. Load items to be played
+let myAudioURLs = [URL(string: "myaudio.com/id/1"), URL(string: "myaudio.com/id/2")]
+try audioPlayer.loadPlayerItems(from: myAudioURLs.compactMap{$0})
+// 2. Start playing 
+audioPlayer.play()
 ```
 
-- play to play
-```swift
-public func play()
-```
+### Getting Player Updates
 
-- delegate methods
 ```swift
-public protocol AudioPlayerDelegate: class {
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didChangePlayerItem playerItem: AVPlayerItem, at index: Int)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didUpdateDuration currentTime: Int, totalDuration: Int)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didBecomeInvalid playbackState: AdvancePlaybackState)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPause playbackState: AdvancePlaybackState)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPlay playbackState: AdvancePlaybackState)
+let audioController = AudioController()
+let audioPlayer = AudioPlayer3A.shared
+audioPlayer.delegate = audioController
+
+...
+extension AudioController: AudioPlayerDelegate {
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didChangePlayerItem playerItem: AVPlayerItem, at index: Int) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didUpdateDuration currentTime: Int, totalDuration: Int) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didBecomeInvalid playbackState: AdvancePlaybackState) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPause playbackState: AdvancePlaybackState) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPlay playbackState: AdvancePlaybackState) { ... }
 }
 ```
 
-- datasource methods
+### Configuring the Control Center
 ```swift
-public protocol AudioPlayerDataSource: class {
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayRemoteImageAtIndex index: Int) -> UIImage?
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayTitleAtIndex index: Int) -> String?
+let audioController = AudioController()
+let audioPlayer = AudioPlayer3A.shared
+audioPlayer.dataSource = audioController
+
+...
+extension AudioController: AudioPlayerDataSource {
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayRemoteImageAtIndex index: Int) -> UIImage? { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayTitleAtIndex index: Int) -> String? { ... }
 }
 ```
 
