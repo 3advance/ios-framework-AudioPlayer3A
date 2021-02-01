@@ -29,8 +29,34 @@ If you prefer not to use any of the aforementioned dependency managers, you can 
 
 ## Usage
 
-ℹ️ Describe the usage of your Kit
+- load player urls
+```swift
+public func loadPlayerItems(from assetURLs: [URL], playAtIndex: Int = 0) throws
+```
 
+- play to play
+```swift
+public func play()
+```
+
+- delegate methods
+```swift
+public protocol AudioPlayerDelegate: class {
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didChangePlayerItem playerItem: AVPlayerItem, at index: Int)
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didUpdateDuration currentTime: Int, totalDuration: Int)
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didBecomeInvalid playbackState: AdvancePlaybackState)
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPause playbackState: AdvancePlaybackState)
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPlay playbackState: AdvancePlaybackState)
+}
+```
+
+- datasource methods
+```swift
+public protocol AudioPlayerDataSource: class {
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayRemoteImageAtIndex index: Int) -> UIImage?
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayTitleAtIndex index: Int) -> String?
+}
+```
 
 ## License
 
