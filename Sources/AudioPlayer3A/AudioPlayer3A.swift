@@ -9,7 +9,7 @@ public class AudioPlayer3A {
     
     private let audioSession = AVAudioSession.sharedInstance()
     private let playerObserver = AudioPlayer3AStateObserver()
-    private let commandCenterController = AudioCommandCenterController()
+    private let controlCenterController = AudioControlCenterController()
     
     // MARK: - Properties
     private var looper: AVPlayerLooper?
@@ -40,13 +40,6 @@ public class AudioPlayer3A {
     public var currentPlayerItem: AVPlayerItem? {
         return player.currentItem
     }
-    public var currentPlayerItemID: String? {
-        if let currentPlayerItem = currentPlayerItem {
-            return dataSource?.audioPlayer(self, idForCurrentPlayerItem: currentPlayerItem)
-        } else {
-            return nil
-        }
-    }
     public var indexOfCurrentPlayerItem: Int? {
         guard let currentItem = currentPlayerItem else { return nil }
         return playerQueue.firstIndex(of: currentItem)
@@ -56,45 +49,52 @@ public class AudioPlayer3A {
     }
     
     // MARK: - Setup
-    public func loadPlayerItems(from avAssets: [(String, AVAsset)], playAtIndex: Int) {
-        do {
-            try audioSession.setCategory(
-                AVAudioSession.Category.playback,
-                mode: AVAudioSession.Mode.default,
-                options: audioCategoryOptions
-            )
-            try AVAudioSession.sharedInstance().setActive(true)
-            print("Audio Session is Active")
-            let playerItems = avAssets.map{ AVPlayerItem(asset: $0.1) }
-            playerQueue = playerItems
-            configurePlayer(playerItems, playAtIndex)
-            configureObserverHandlers()
-            configureCommandCenterHandlers()
-            playerObserver.observeTimeChanges(in: player)
-            playerObserver.observeCurrentItemChanges(in: player)
-        } catch {
-            print(error)
-        }
+    /// Loads the player queue and configures the player given URLs.
+    /// - Parameters:
+    ///   - assetURLs: Array of audio URLs.
+    ///   - playAtIndex: The starting index of the player.
+    /// - Throws: Error thrown from the audio session setup/configuration.
+    public func loadPlayerItems(from assetURLs: [URL], playAtIndex: Int = 0) throws {
+        let isPlayIndexWithinRange = playAtIndex >= 0 && playAtIndex < assetURLs.count
+        if !isPlayIndexWithinRange { throw NSError(domain: "Invalid play index", code: -1, userInfo: nil) }
+        try audioSession.setCategory(
+            AVAudioSession.Category.playback,
+            mode: AVAudioSession.Mode.default,
+            options: audioCategoryOptions
+        )
+        try AVAudioSession.sharedInstance().setActive(true)
+        print("Audio Session is Active")
+        let avAssets = assetURLs.map{ AVAsset(url: $0) }
+        let playerItems = avAssets.map{ AVPlayerItem(asset: $0) }
+        playerQueue = playerItems
+        configurePlayer(playerItems, playAtIndex)
+        configureObserverHandlers()
+        configureControlCenterHandlers()
+        playerObserver.observeTimeChanges(in: player)
+        playerObserver.observeCurrentItemChanges(in: player)
     }
     
     // MARK: - Controls
-    /// Handles playing and pausing for the current player Item.
+    /// Toggles the current player item playback state. If you did not initially call loadPlayerItems, this method will set the playback state to invalid.
     public func play() {
-        commandCenterController.setupRemoteCommandCenter()
+        if playerQueue.isEmpty { playbackState = .invalid; return }
+        controlCenterController.setup()
         configureCommandCenter()
         playbackState = isPaused ? .playing : .paused
         if let playerItem = currentPlayerItem, let index = indexOfCurrentPlayerItem {
             delegate?.audioPlayer(self, didChangePlayerItem: playerItem, at: index)
         }
     }
-
+    
+    /// Terminates the player removing observers and emptying the player queue.
     public func stop() {
         player.pause()
         player.removeAllItems()
         playerQueue.removeAll()
+        playbackState = .invalid
         playerObserver.removeTimeObserver(in: player)
         try? audioSession.setActive(false)
-        commandCenterController.clearRemoteNowPlayingInfoCenter()
+        controlCenterController.clearRemoteNowPlayingInfoCenter()
     }
     
     public func goBackFifteenSeconds() {
@@ -141,14 +141,14 @@ extension AudioPlayer3A {
         switch playbackState {
         case .playing:
             player.play()
-            commandCenterController.play()
+            controlCenterController.play()
             delegate?.audioPlayer(self, didPlay: playbackState)
         case .paused:
             player.pause()
-            commandCenterController.pause()
+            controlCenterController.pause()
             delegate?.audioPlayer(self, didPause: playbackState)
         case .invalid:
-            commandCenterController.stop()
+            controlCenterController.stop()
             delegate?.audioPlayer(self, didBecomeInvalid: playbackState)
         case .pending:
             break
@@ -193,17 +193,17 @@ extension AudioPlayer3A {
             let remoteConfig = RemotePlayConfig(
                 rate: player.rate, title: itemTitle, image: itemImage, totalDuration: totalDuration, currentDuration: elapsedTime
             )
-            commandCenterController.configureNowPlayingInfoCenter(config: remoteConfig)
+            controlCenterController.configureNowPlayingInfoCenter(config: remoteConfig)
         }
     }
     
-    private func configureCommandCenterHandlers() {
-        commandCenterController.nextHandler = skipForward
-        commandCenterController.previousHandler = skipBack
-        commandCenterController.playHandler = {
+    private func configureControlCenterHandlers() {
+        controlCenterController.nextHandler = skipForward
+        controlCenterController.previousHandler = skipBack
+        controlCenterController.playHandler = {
             self.playbackState = .playing
         }
-        commandCenterController.pauseHandler = {
+        controlCenterController.pauseHandler = {
             self.playbackState = .paused
         }
     }

@@ -10,7 +10,6 @@ public protocol AudioPlayerDelegate: class {
 }
 
 public protocol AudioPlayerDataSource: class {
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, idForCurrentPlayerItem playerItem: AVPlayerItem) -> String?
     func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayRemoteImageAtIndex index: Int) -> UIImage?
     func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayTitleAtIndex index: Int) -> String?
 }

@@ -2,7 +2,7 @@ import AVFoundation
 import Foundation
 import MediaPlayer
 
-final class AudioCommandCenterController {
+final class AudioControlCenterController {
     // MARK: Properties
     weak var dataSource: AudioPlayerDataSource?
     
@@ -47,7 +47,7 @@ final class AudioCommandCenterController {
         UIApplication.shared.endReceivingRemoteControlEvents()
     }
     
-    func setupRemoteCommandCenter() {
+    func setup() {
         let commandCenter = MPRemoteCommandCenter.shared();
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { event in
