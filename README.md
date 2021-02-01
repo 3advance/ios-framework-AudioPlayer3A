@@ -37,8 +37,9 @@ let audioPlayer = AudioPlayer3A.shared
 let myAudioURLs = [URL(string: "myaudio.com/id/1"), URL(string: "myaudio.com/id/2")]
 try audioPlayer.loadPlayerItems(from: myAudioURLs.compactMap{$0})
 // 2. Start playing 
-audioPlayer.play()
+audioPlayer.togglePlay()
 ```
+- calling togglePlay again will pause the player.
 
 ### Getting Player Updates
 
