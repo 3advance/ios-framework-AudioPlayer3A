@@ -23,7 +23,7 @@ https://github.com/3advance/ios-framework-AudioPlayer3A
 import AudioPlayer3A
 ```
 
-### Manually
+#### Manually
 
 If you prefer not to use any of the aforementioned dependency managers, you can integrate AudioPlayer3A into your project manually. Simply drag the `Sources` Folder into your Xcode project.
 
@@ -38,23 +38,25 @@ public func loadPlayerItems(from assetURLs: [URL], playAtIndex: Int = 0) throws
 ```swift
 public func play()
 ```
-
-- delegate methods
+You can receive player updates through the AudioPlayerDelegate protocol methods.
 ```swift
-public protocol AudioPlayerDelegate: class {
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didChangePlayerItem playerItem: AVPlayerItem, at index: Int)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didUpdateDuration currentTime: Int, totalDuration: Int)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didBecomeInvalid playbackState: AdvancePlaybackState)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPause playbackState: AdvancePlaybackState)
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPlay playbackState: AdvancePlaybackState)
+let audioController = AudioController()
+AudioPlayer3A.shared.delegate = audioController
+
+extension AudioController: AudioPlayerDelegate {
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didChangePlayerItem playerItem: AVPlayerItem, at index: Int) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didUpdateDuration currentTime: Int, totalDuration: Int) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didBecomeInvalid playbackState: AdvancePlaybackState) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPause playbackState: AdvancePlaybackState) { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, didPlay playbackState: AdvancePlaybackState) { ... }
 }
 ```
 
-- datasource methods
+- datasource methods retrieve for display within control center
 ```swift
-public protocol AudioPlayerDataSource: class {
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayRemoteImageAtIndex index: Int) -> UIImage?
-    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayTitleAtIndex index: Int) -> String?
+extension AudioController: AudioPlayerDataSource {
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayRemoteImageAtIndex index: Int) -> UIImage? { ... }
+    func audioPlayer(_ audioPlayer: AudioPlayer3A, shouldDisplayTitleAtIndex index: Int) -> String? { ... }
 }
 ```
 
