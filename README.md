@@ -29,12 +29,14 @@ You can also integrate AudioPlayer3A into your project manually by simply draggi
 
 ## Usage
 
-### Loading
+### Setup/Playing
 
 ```swift
 let audioPlayer = AudioPlayer3A.shared
+// 1. Load items to be played
 let myAudioURLs = [URL(string: "myaudio.com/id/1"), URL(string: "myaudio.com/id/2")]
 try audioPlayer.loadPlayerItems(from: myAudioURLs.compactMap{$0})
+// 2. Start playing 
 audioPlayer.play()
 ```
 
