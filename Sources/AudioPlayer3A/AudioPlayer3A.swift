@@ -13,7 +13,7 @@ public class AudioPlayer3A {
     
     // MARK: - Properties
     private var looper: AVPlayerLooper?
-    private let player: AVQueuePlayer = AVQueuePlayer()
+    public let player: AVQueuePlayer = AVQueuePlayer()
     private(set) var playerQueue: [AVPlayerItem] = []
     public var audioCategoryOptions: AVAudioSession.CategoryOptions = [
         .mixWithOthers, .allowAirPlay, .defaultToSpeaker
@@ -95,19 +95,6 @@ public class AudioPlayer3A {
         playerObserver.removeTimeObserver(in: player)
         try? audioSession.setActive(false)
         controlCenterController.clearRemoteNowPlayingInfoCenter()
-    }
-    
-    public func goBackFifteenSeconds() {
-        let currentTime = player.currentTime().seconds
-        guard currentTime != 0 else { return }
-        let timeScale = CMTimeScale(NSEC_PER_SEC)
-        player.seek(to: CMTime(seconds: currentTime - 15, preferredTimescale: timeScale))
-    }
-    
-    public func goForwardFifteenSeconds() {
-        let currentTime = player.currentTime().seconds
-        let timeScale = CMTimeScale(NSEC_PER_SEC)
-        player.seek(to: CMTime(seconds: currentTime + 15, preferredTimescale: timeScale))
     }
     
     public func seek(to value: Float) {
